@@ -162,7 +162,7 @@ public class JSONTest {
                 Punch punch = iterator.next();
                 if (punch.getId() != 5005) {
                     iterator.remove();
-                }
+}
             }
             for (Punch punch : dailypunchlist) {
                 punch.adjust(s);
