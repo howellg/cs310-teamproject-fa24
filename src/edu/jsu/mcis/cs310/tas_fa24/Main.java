@@ -20,14 +20,18 @@ public class Main {
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
         PunchDAO punchDAO = daoFactory.getPunchDAO();
 
-        /* Get Punch/Employee Objects */
+        /**  
+         * Get Punch/Employee Objects
+         */
         
         Punch p = punchDAO.find(4943);
         Employee e = employeeDAO.find(p.getBadge());
         Shift s = e.getShift();
         Badge b = e.getBadge();
         
-        /* Get Pay Period Punch List */
+        /**
+         *  Get Pay Period Punch List 
+         */
         
         LocalDate ts = p.getOriginalTimestamp().toLocalDate();
         LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
@@ -35,18 +39,24 @@ public class Main {
         
         ArrayList<Punch> punchlist = punchDAO.list(b, begin, end);
         
-        /* Adjust Punch List */
+        /**
+         *  Adjust Punch List
+         */
         
         for (Punch punch : punchlist) {
             punch.adjust(s);
             //System.err.println(punch.printAdjusted());
         }
         
-        /* Compute Pay Period Total Absenteeism */
+        /** 
+         * Compute Pay Period Total Absenteeism
+         */
         
         BigDecimal percentage = DAOUtility.calculateAbsenteeism(punchlist, s);
         
-        /* Insert Absenteeism Into Database */
+        /** 
+         * Insert Absenteeism Into Database
+         */
         
         Absenteeism a1 = new Absenteeism(e, ts, percentage);
         System.err.println("Test big decimal: " +a1.toString());

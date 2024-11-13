@@ -29,8 +29,8 @@ public class Shift {
     
         this.lunchduration = (int) ChronoUnit.MINUTES.between(lunchstart, lunchstop);
         long duration = ChronoUnit.MINUTES.between(shiftstart, shiftstop);
-        if (duration < 0) { //If the stop time is on the next day
-            duration += 1440; //Adds 24 hours
+        if (duration < 0) { /**If the stop time is on the next day*/
+            duration += 1440; /**Adds 24 hours*/
         }
         this.shiftduration = (int) duration;
         
