@@ -76,16 +76,36 @@ public class AbsenteeismDAO {
         
         try{
             conn = daoFactory.getConnection();
-            if(conn.isValid(0)){
-                if(absent_employee.getId()==absent2.getEmployee().getId() && absent.getStartPayPeriod().compareTo(absent2.getStartPayPeriod())==0){
-                    ps = conn.prepareStatement(QUERY_UPDATE);
-                    ps.setDouble(1, absent.getPercentage().doubleValue());
-                    ps.setDate(2,Date.valueOf(absent.getStartPayPeriod()));
-                    ps.setInt(3,absent.getEmployee().getId());
+            if(absent2!=null){
+                if(conn.isValid(0)){
+                    if(absent_employee.getId()==absent2.getEmployee().getId() && absent.getStartPayPeriod().compareTo(absent2.getStartPayPeriod())==0){
+                        ps = conn.prepareStatement(QUERY_UPDATE);
+                        ps.setDouble(1, absent.getPercentage().doubleValue());
+                        ps.setDate(2,Date.valueOf(absent.getStartPayPeriod()));
+                        ps.setInt(3,absent.getEmployee().getId());
                     
                     
-                }else if(absent_employee.getId()!=absent2.getEmployee().getId() && absent.getStartPayPeriod().compareTo(absent2.getStartPayPeriod())!=0){
-                    ps = conn.prepareStatement(QUERY_CREATE);
+                    }else if(absent_employee.getId()!=absent2.getEmployee().getId() && absent.getStartPayPeriod().compareTo(absent2.getStartPayPeriod())!=0){
+                        ps = conn.prepareStatement(QUERY_CREATE);
+                        ps.setInt(1,absent.getEmployee().getId());
+                        ps.setDate(2,Date.valueOf(absent.getStartPayPeriod()));
+                    
+                        ps.setDouble(3, absent.getPercentage().doubleValue());
+                    }
+                
+              
+                
+                    int updateCount = ps.executeUpdate();
+                
+                    if (updateCount > 0){
+                                
+                    
+                        result = true;
+                   
+                    }
+                }
+            }else{
+                ps = conn.prepareStatement(QUERY_CREATE);
                     ps.setInt(1,absent.getEmployee().getId());
                     ps.setDate(2,Date.valueOf(absent.getStartPayPeriod()));
                     
@@ -100,8 +120,6 @@ public class AbsenteeismDAO {
                                 
                     
                     result = true;
-                   
-                }
             }
             
         }
