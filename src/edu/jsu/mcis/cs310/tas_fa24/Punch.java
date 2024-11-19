@@ -82,46 +82,47 @@ public class Punch {
     }
     
     public void adjust(Shift s){
+        DailySchedule d = s.getDailySchedule(this.originalTimestamp.getDayOfWeek());
         LocalDateTime adjust = null;
         adjust = this.originalTimestamp;
        
         /**
          * shift-start rule
          */
-        if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStart())<0 && this.originalTimestamp.toLocalTime().plusMinutes(s.getRoundInterval()).compareTo(s.getShiftStart())>=0){
-            adjust = adjust.withHour(s.getShiftStart().getHour());
-            adjust = adjust.withMinute(s.getShiftStart().getMinute());
-            adjust = adjust.withSecond(s.getShiftStart().getSecond());
+        if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStart())<0 && this.originalTimestamp.toLocalTime().plusMinutes(d.getRoundInterval()).compareTo(d.getShiftStart())>=0){
+            adjust = adjust.withHour(d.getShiftStart().getHour());
+            adjust = adjust.withMinute(d.getShiftStart().getMinute());
+            adjust = adjust.withSecond(d.getShiftStart().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
         /**
          * shift-stop rule
          */
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStop())>0 && this.originalTimestamp.toLocalTime().minusMinutes(s.getRoundInterval()).compareTo(s.getShiftStop())<=0){
-            adjust = adjust.withHour(s.getShiftStop().getHour());
-            adjust = adjust.withMinute(s.getShiftStop().getMinute());
-            adjust = adjust.withSecond(s.getShiftStop().getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStop())>0 && this.originalTimestamp.toLocalTime().minusMinutes(d.getRoundInterval()).compareTo(d.getShiftStop())<=0){
+            adjust = adjust.withHour(d.getShiftStop().getHour());
+            adjust = adjust.withMinute(d.getShiftStop().getMinute());
+            adjust = adjust.withSecond(d.getShiftStop().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
         /**
          * lunch-start rule
          */
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getLunchStart())>0 && this.originalTimestamp.toLocalTime().compareTo(s.getLunchStop())<0){
-            adjust = adjust.withHour(s.getLunchStart().getHour());
-            adjust = adjust.withMinute(s.getLunchStart().getMinute());
-            adjust = adjust.withSecond(s.getLunchStart().getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getLunchStart())>0 && this.originalTimestamp.toLocalTime().compareTo(d.getLunchStop())<0){
+            adjust = adjust.withHour(d.getLunchStart().getHour());
+            adjust = adjust.withMinute(d.getLunchStart().getMinute());
+            adjust = adjust.withSecond(d.getLunchStart().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.LUNCH_START;
         /**
          * lunch-stop rule
          */
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getLunchStart())>0 && this.originalTimestamp.toLocalTime().compareTo(s.getLunchStop())<0){
-            adjust = adjust.withHour(s.getLunchStop().getHour());
-            adjust = adjust.withMinute(s.getLunchStop().getMinute());
-            adjust = adjust.withSecond(s.getLunchStop().getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getLunchStart())>0 && this.originalTimestamp.toLocalTime().compareTo(d.getLunchStop())<0){
+            adjust = adjust.withHour(d.getLunchStop().getHour());
+            adjust = adjust.withMinute(d.getLunchStop().getMinute());
+            adjust = adjust.withSecond(d.getLunchStop().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.LUNCH_STOP;
@@ -129,40 +130,40 @@ public class Punch {
          * grace period(for shift-start) rule
          */
         
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStart())>0 && this.originalTimestamp.toLocalTime().minusMinutes(s.getGracePeriod()).compareTo(s.getShiftStart())<=0){
-            adjust = adjust.withHour(s.getShiftStart().getHour());
-            adjust = adjust.withMinute(s.getShiftStart().getMinute());
-            adjust = adjust.withSecond(s.getShiftStart().getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStart())>0 && this.originalTimestamp.toLocalTime().minusMinutes(d.getGracePeriod()).compareTo(d.getShiftStart())<=0){
+            adjust = adjust.withHour(d.getShiftStart().getHour());
+            adjust = adjust.withMinute(d.getShiftStart().getMinute());
+            adjust = adjust.withSecond(d.getShiftStart().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_START;
         /**
          * grace period(for shift-stop) rule
          */
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStop())<0 && this.originalTimestamp.toLocalTime().plusMinutes(s.getGracePeriod()).compareTo(s.getShiftStop())>=0){
-            adjust = adjust.withHour(s.getShiftStop().getHour());
-            adjust = adjust.withMinute(s.getShiftStop().getMinute());
-            adjust = adjust.withSecond(s.getShiftStop().getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStop())<0 && this.originalTimestamp.toLocalTime().plusMinutes(d.getGracePeriod()).compareTo(d.getShiftStop())>=0){
+            adjust = adjust.withHour(d.getShiftStop().getHour());
+            adjust = adjust.withMinute(d.getShiftStop().getMinute());
+            adjust = adjust.withSecond(d.getShiftStop().getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_STOP;
         /**
          * dock penalty for shift-start rule
          */
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStart())>0 && this.originalTimestamp.toLocalTime().minusMinutes(s.getGracePeriod()).compareTo(s.getShiftStart())>=0 && this.originalTimestamp.toLocalTime().minusMinutes(s.getDockPenalty()).compareTo(s.getShiftStart())<=0){
-            adjust = adjust.withHour(s.getShiftStart().plusMinutes(s.getDockPenalty()).getHour());
-            adjust = adjust.withMinute(s.getShiftStart().plusMinutes(s.getDockPenalty()).getMinute());
-            adjust = adjust.withSecond(s.getShiftStart().plusMinutes(s.getDockPenalty()).getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK IN") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStart())>0 && this.originalTimestamp.toLocalTime().minusMinutes(d.getGracePeriod()).compareTo(d.getShiftStart())>=0 && this.originalTimestamp.toLocalTime().minusMinutes(d.getDockPenalty()).compareTo(d.getShiftStart())<=0){
+            adjust = adjust.withHour(d.getShiftStart().plusMinutes(d.getDockPenalty()).getHour());
+            adjust = adjust.withMinute(d.getShiftStart().plusMinutes(d.getDockPenalty()).getMinute());
+            adjust = adjust.withSecond(d.getShiftStart().plusMinutes(d.getDockPenalty()).getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
         /**
          * dock penalty for shift-stop rule
          */  
-        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(s.getShiftStop())<0 && this.originalTimestamp.toLocalTime().plusMinutes(s.getGracePeriod()).compareTo(s.getShiftStop())<=0 && this.originalTimestamp.toLocalTime().plusMinutes(s.getDockPenalty()).compareTo(s.getShiftStop())>=0){
-            adjust = adjust.withHour(s.getShiftStop().minusMinutes(s.getDockPenalty()).getHour());
-            adjust = adjust.withMinute(s.getShiftStop().minusMinutes(s.getDockPenalty()).getMinute());
-            adjust = adjust.withSecond(s.getShiftStop().minusMinutes(s.getDockPenalty()).getSecond());
+        }else if(this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 && this.originalTimestamp.getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0 && this.punchType.toString().compareTo("CLOCK OUT") == 0 && this.originalTimestamp.toLocalTime().compareTo(d.getShiftStop())<0 && this.originalTimestamp.toLocalTime().plusMinutes(d.getGracePeriod()).compareTo(d.getShiftStop())<=0 && this.originalTimestamp.toLocalTime().plusMinutes(d.getDockPenalty()).compareTo(d.getShiftStop())>=0){
+            adjust = adjust.withHour(d.getShiftStop().minusMinutes(d.getDockPenalty()).getHour());
+            adjust = adjust.withMinute(d.getShiftStop().minusMinutes(d.getDockPenalty()).getMinute());
+            adjust = adjust.withSecond(d.getShiftStop().minusMinutes(d.getDockPenalty()).getSecond());
             adjust = adjust.withSecond(0);
             adjust = adjust.withNano(0);
             this.adjustmenttype = PunchAdjustmentType.SHIFT_DOCK;
@@ -170,20 +171,20 @@ public class Punch {
          * interval rule
          */
         }else{
-            if(((this.originalTimestamp.getMinute()%s.getRoundInterval())*60+this.originalTimestamp.getSecond())<=((s.getRoundInterval()/2)*60+29) && this.originalTimestamp.getMinute()%s.getRoundInterval()!=0){
-                adjust = this.originalTimestamp.minusMinutes(this.originalTimestamp.getMinute()%s.getRoundInterval());
+            if(((this.originalTimestamp.getMinute()%d.getRoundInterval())*60+this.originalTimestamp.getSecond())<=((d.getRoundInterval()/2)*60+29) && this.originalTimestamp.getMinute()%d.getRoundInterval()!=0){
+                adjust = this.originalTimestamp.minusMinutes(this.originalTimestamp.getMinute()%d.getRoundInterval());
                 adjust = adjust.withSecond(0);
                 adjust = adjust.withNano(0);
                 this.adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
-            }else if(((this.originalTimestamp.getMinute()%s.getRoundInterval())*60+this.originalTimestamp.getSecond())>((s.getRoundInterval()/2)*60+29) && this.originalTimestamp.getMinute()%s.getRoundInterval()!=0){
-                adjust = this.originalTimestamp.plusMinutes(s.getRoundInterval()-this.originalTimestamp.getMinute()%s.getRoundInterval());
+            }else if(((this.originalTimestamp.getMinute()%d.getRoundInterval())*60+this.originalTimestamp.getSecond())>((d.getRoundInterval()/2)*60+29) && this.originalTimestamp.getMinute()%d.getRoundInterval()!=0){
+                adjust = this.originalTimestamp.plusMinutes(d.getRoundInterval()-this.originalTimestamp.getMinute()%d.getRoundInterval());
                 adjust = adjust.withSecond(0);
                 adjust = adjust.withNano(0);
                 this.adjustmenttype = PunchAdjustmentType.INTERVAL_ROUND;
             /**
              * none rule
              */
-            }else if(this.originalTimestamp.getMinute()%s.getRoundInterval()==0){
+            }else if(this.originalTimestamp.getMinute()%d.getRoundInterval()==0){
                 adjust = adjust.withSecond(0);
                 adjust = adjust.withNano(0);
                 this.adjustmenttype = PunchAdjustmentType.NONE;

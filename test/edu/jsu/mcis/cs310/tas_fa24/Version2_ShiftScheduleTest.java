@@ -7,6 +7,7 @@ import edu.jsu.mcis.cs310.tas_fa24.dao.EmployeeDAO;
 import edu.jsu.mcis.cs310.tas_fa24.dao.ShiftDAO;
 import edu.jsu.mcis.cs310.tas_fa24.dao.DAOFactory;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -27,7 +28,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test1TemporaryOverrideAllEmployees() {
+    public void test1TemporaryOverrideAllEmployees() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
@@ -117,7 +118,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test2TemporaryOverrideIndividualEmployee() {
+    public void test2TemporaryOverrideIndividualEmployee() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
@@ -235,7 +236,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test3RecurringOverrideIndividualEmployee() {
+    public void test3RecurringOverrideIndividualEmployee() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
