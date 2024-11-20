@@ -88,7 +88,11 @@ public final class DAOUtility {
             } 
             else if (punch.getPunchType() == EventType.CLOCK_OUT && clockInFound) {
                 DailySchedule d = shift.getDailySchedule(punch.getAdjustedTimestamp().getDayOfWeek());
-                int minutesWorked = (int) ChronoUnit.MINUTES.between(clockInPunch.getAdjustedTimestamp(), punch.getAdjustedTimestamp());
+                int minutesWorked;
+                if(d.getShiftDuration()==0){
+                    minutesWorked=0;
+                }else{
+                minutesWorked = (int) ChronoUnit.MINUTES.between(clockInPunch.getAdjustedTimestamp(), punch.getAdjustedTimestamp());
                 if(clockInPunch.getAdjustedTimestamp().toLocalTime().compareTo(d.getLunchStart())==0 && clockInPunch.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 &&
                 clockInPunch.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0){
                     daily.add(punch);
@@ -107,6 +111,7 @@ public final class DAOUtility {
                 
                 clockInFound = false;
             } 
+            }
             else if (punch.getPunchType() == EventType.TIME_OUT) {
                 clockInFound = false;
                 daily.add(punch);
@@ -139,10 +144,24 @@ public final class DAOUtility {
     }
     
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
+        int standardMinutes = 0;
+        for(DayOfWeek day : DayOfWeek.values()){
+            int minutesDay=0;
+            if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY){
+                DailySchedule d = s.getDailySchedule(day);
+                minutesDay = d.getShiftDuration();
+                if(minutesDay!=0){
+                    minutesDay=minutesDay-30;
+                }
+                standardMinutes = standardMinutes + minutesDay;
+            }
+            
+        }
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
         System.out.println("Total Minutes Worked: " + totalMinutesWorked); //Debugging output
     
-        int standardMinutes = 2400; //40 hours a week converted to minutes
+        
+        
         System.out.println("Standard Minutes: " + standardMinutes); //Debugging output
     
         double difference = standardMinutes - totalMinutesWorked;

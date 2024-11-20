@@ -16,50 +16,85 @@ public class Main {
         // test database connectivity; get DAOs
 
         DAOFactory daoFactory = new DAOFactory("tas.jdbc");
-        AbsenteeismDAO absenteeismDAO = daoFactory.getAbsenteeismDAO();
+        BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
         PunchDAO punchDAO = daoFactory.getPunchDAO();
-
-        /**  
-         * Get Punch/Employee Objects
-         */
+        ShiftDAO shiftDAO = daoFactory.getShiftDAO();
         
-        Punch p = punchDAO.find(4943);
-        Employee e = employeeDAO.find(p.getBadge());
-        Shift s = e.getShift();
-        Badge b = e.getBadge();
+        /* Create Badge end Employee Objects */
         
-        /**
-         *  Get Pay Period Punch List 
-         */
+        Badge b = badgeDAO.find("D2CC71D4");
+        Employee e = employeeDAO.find(b);
         
-        LocalDate ts = p.getOriginalTimestamp().toLocalDate();
+        /* PART ONE */
+        
+        /* Get Shift Object for Pay Period Starting 08-26-2018 (regular Shift 1 schedule) */
+        
+        LocalDate ts = LocalDate.of(2018, Month.AUGUST, 26);
         LocalDate begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
         LocalDate end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
         
-        ArrayList<Punch> punchlist = punchDAO.list(b, begin, end);
+        Shift s = shiftDAO.find(b, ts);
         
-        /**
-         *  Adjust Punch List
-         */
+        /* Retrieve Punch List #1 */
         
-        for (Punch punch : punchlist) {
-            punch.adjust(s);
-            //System.err.println(punch.printAdjusted());
+        ArrayList<Punch> p1 = punchDAO.list(b, begin, end);
+        
+        for (Punch p : p1) {
+            p.adjust(s);
         }
         
-        /** 
-         * Compute Pay Period Total Absenteeism
-         */
+        /* Calculate Pay Period 08-26-2018 Absenteeism */
         
-        BigDecimal percentage = DAOUtility.calculateAbsenteeism(punchlist, s);
-        
-        /** 
-         * Insert Absenteeism Into Database
-         */
-        
+        BigDecimal percentage = DAOUtility.calculateAbsenteeism(p1, s);
         Absenteeism a1 = new Absenteeism(e, ts, percentage);
         System.err.println("Test big decimal: " +a1.toString());
+        
+        ts = LocalDate.of(2018, Month.SEPTEMBER, 2);
+        begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
+        
+        s = shiftDAO.find(b, ts);
+        System.err.println("Test big decimal: " +s.toString());
+        
+        DailySchedule d = s.getDailySchedule(DayOfWeek.MONDAY);
+        System.err.println(d.toString());
+        
+        /* Retrieve Punch List #2 */
+        
+        ArrayList<Punch> p2 = punchDAO.list(b, begin, end);
+        
+        for (Punch p : p2) {
+            p.adjust(s);
+        }
+        
+        /* Calculate Pay Period 09-02-2018 Absenteeism */
+        
+        percentage = DAOUtility.calculateAbsenteeism(p2, s);
+        Absenteeism a2 = new Absenteeism(e, ts, percentage);
+        System.err.println("Test big decimal: " +a2.toString());
+        
+        ts = LocalDate.of(2018, Month.SEPTEMBER, 9);
+        begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+        end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
+        
+        s = shiftDAO.find(b, ts);
+        DailySchedule d1 = s.getDailySchedule(DayOfWeek.FRIDAY);
+        System.err.println("Test big decimal: " +d1.toString());
+        
+        /* Retrieve Punch List #3 */
+        
+        ArrayList<Punch> p3 = punchDAO.list(b, begin, end);
+        
+        for (Punch p : p3) {
+            p.adjust(s);
+        }
+        
+        /* Calculate Pay Period 09-09-2018 Absenteeism */
+        
+        percentage = DAOUtility.calculateAbsenteeism(p3, s);
+        Absenteeism a3 = new Absenteeism(e, ts, percentage);
+        System.err.println("Test big decimal: " +a3.toString());
 
     }
 
