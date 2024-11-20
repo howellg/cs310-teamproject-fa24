@@ -5,6 +5,7 @@ import java.util.*;
 import java.time.temporal.ChronoUnit;
 import java.time.format.DateTimeFormatter;
 import com.github.cliftonlabs.json_simple.*;
+import edu.jsu.mcis.cs310.tas_fa24.DailySchedule;
 import edu.jsu.mcis.cs310.tas_fa24.EventType;
 import edu.jsu.mcis.cs310.tas_fa24.Punch;
 import edu.jsu.mcis.cs310.tas_fa24.Shift;
@@ -86,15 +87,20 @@ public final class DAOUtility {
                 daily.add(punch);
             } 
             else if (punch.getPunchType() == EventType.CLOCK_OUT && clockInFound) {
-                int minutesWorked = (int) ChronoUnit.MINUTES.between(clockInPunch.getAdjustedTimestamp(), punch.getAdjustedTimestamp());
-                if(clockInPunch.getAdjustedTimestamp().toLocalTime().compareTo(shift.getLunchStart())==0 && clockInPunch.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 &&
+                DailySchedule d = shift.getDailySchedule(punch.getAdjustedTimestamp().getDayOfWeek());
+                int minutesWorked;
+                if(d.getShiftDuration()==0){
+                    minutesWorked=0;
+                }else{
+                minutesWorked = (int) ChronoUnit.MINUTES.between(clockInPunch.getAdjustedTimestamp(), punch.getAdjustedTimestamp());
+                if(clockInPunch.getAdjustedTimestamp().toLocalTime().compareTo(d.getLunchStart())==0 && clockInPunch.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 &&
                 clockInPunch.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SUNDAY)!=0){
                     daily.add(punch);
                 }else{
                     daily.add(punch);
                     
-                    if(minutesWorked >= shift.getLunchThreshold() && hasClockOutDuringLunch(daily,shift)==true){
-                        minutesWorked=minutesWorked-shift.getLunchDuration();
+                    if(minutesWorked >= d.getLunchThreshold() && hasClockOutDuringLunch(daily,shift)==true){
+                        minutesWorked=minutesWorked-d.getLunchDuration();
                         totalMinutes=totalMinutes+minutesWorked;
                     }else{
                         totalMinutes=totalMinutes+minutesWorked;
@@ -105,6 +111,7 @@ public final class DAOUtility {
                 
                 clockInFound = false;
             } 
+            }
             else if (punch.getPunchType() == EventType.TIME_OUT) {
                 clockInFound = false;
                 daily.add(punch);
@@ -117,14 +124,15 @@ public final class DAOUtility {
 
     //method that checks if a lunch break was actually taken
     private static boolean hasClockOutDuringLunch(ArrayList<Punch> dailypunchlist, Shift shift) {
+        DailySchedule d = shift.getDailySchedule(dailypunchlist.get(0).getAdjustedTimestamp().getDayOfWeek());
         for (int i = 0; i < dailypunchlist.size() - 1; i++) {
             Punch current = dailypunchlist.get(i);
             Punch next = dailypunchlist.get(i + 1);
             //this checks if a clock out is followed by a clock in during lunch
             if (current.getPunchType() == EventType.CLOCK_IN &&
-                current.getAdjustedTimestamp().toLocalTime().isBefore(shift.getLunchStop()) &&
+                current.getAdjustedTimestamp().toLocalTime().isBefore(d.getLunchStop()) &&
                 next.getPunchType() == EventType.CLOCK_OUT &&
-                next.getAdjustedTimestamp().toLocalTime().isAfter(shift.getLunchStart()) && 
+                next.getAdjustedTimestamp().toLocalTime().isAfter(d.getLunchStart()) && 
                 next.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0 &&
                 current.getAdjustedTimestamp().toLocalDate().getDayOfWeek().compareTo(DayOfWeek.SATURDAY)!=0) {
                 //lunch break was taken
@@ -136,10 +144,24 @@ public final class DAOUtility {
     }
     
     public static BigDecimal calculateAbsenteeism(ArrayList<Punch> punchlist, Shift s) {
+        int standardMinutes = 0;
+        for(DayOfWeek day : DayOfWeek.values()){
+            int minutesDay=0;
+            if (day != DayOfWeek.SATURDAY && day != DayOfWeek.SUNDAY){
+                DailySchedule d = s.getDailySchedule(day);
+                minutesDay = d.getShiftDuration();
+                if(minutesDay!=0){
+                    minutesDay=minutesDay-30;
+                }
+                standardMinutes = standardMinutes + minutesDay;
+            }
+            
+        }
         int totalMinutesWorked = DAOUtility.calculateTotalMinutes(punchlist, s);
         System.out.println("Total Minutes Worked: " + totalMinutesWorked); //Debugging output
     
-        int standardMinutes = 2400; //40 hours a week converted to minutes
+        
+        
         System.out.println("Standard Minutes: " + standardMinutes); //Debugging output
     
         double difference = standardMinutes - totalMinutesWorked;

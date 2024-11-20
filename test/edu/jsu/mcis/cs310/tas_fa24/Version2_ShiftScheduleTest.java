@@ -28,7 +28,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test1TemporaryOverrideAllEmployees() throws SQLException{
+    public void test1TemporaryOverrideAllEmployees() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
@@ -118,7 +118,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test2TemporaryOverrideIndividualEmployee() throws SQLException{
+    public void test2TemporaryOverrideIndividualEmployee() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
@@ -236,7 +236,7 @@ public class Version2_ShiftScheduleTest {
     }
     
     @Test
-    public void test3RecurringOverrideIndividualEmployee() throws SQLException{
+    public void test3RecurringOverrideIndividualEmployee() throws SQLException {
         
         BadgeDAO badgeDAO = daoFactory.getBadgeDAO();
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();

@@ -77,6 +77,8 @@ public class ShiftDAO {
         }
 
         Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
 
         try {
             conn = daoFactory.getConnection();
@@ -86,6 +88,8 @@ public class ShiftDAO {
 
             applyOverrides(conn, shift, badge, payPeriodStart, payPeriodEnd);
         } finally {
+            if (rs != null) rs.close();
+            if (ps != null) ps.close();
         }
 
         return shift;
