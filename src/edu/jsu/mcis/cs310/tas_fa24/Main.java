@@ -20,6 +20,7 @@ public class Main {
         EmployeeDAO employeeDAO = daoFactory.getEmployeeDAO();
         PunchDAO punchDAO = daoFactory.getPunchDAO();
         ShiftDAO shiftDAO = daoFactory.getShiftDAO();
+        ReportDAO reportDAO = daoFactory.getReportDAO();
         
         /* Create Badge end Employee Objects */
         
@@ -50,51 +51,8 @@ public class Main {
         Absenteeism a1 = new Absenteeism(e, ts, percentage);
         System.err.println("Test big decimal: " +a1.toString());
         
-        ts = LocalDate.of(2018, Month.SEPTEMBER, 2);
-        begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        s = shiftDAO.find(b, ts);
-        System.err.println("Test big decimal: " +s.toString());
-        
-        DailySchedule d = s.getDailySchedule(DayOfWeek.MONDAY);
-        System.err.println(d.toString());
-        
-        /* Retrieve Punch List #2 */
-        
-        ArrayList<Punch> p2 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p2) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-02-2018 Absenteeism */
-        
-        percentage = DAOUtility.calculateAbsenteeism(p2, s);
-        Absenteeism a2 = new Absenteeism(e, ts, percentage);
-        System.err.println("Test big decimal: " +a2.toString());
-        
-        ts = LocalDate.of(2018, Month.SEPTEMBER, 9);
-        begin = ts.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
-        end = begin.with(TemporalAdjusters.next(DayOfWeek.SATURDAY));
-        
-        s = shiftDAO.find(b, ts);
-        DailySchedule d1 = s.getDailySchedule(DayOfWeek.FRIDAY);
-        System.err.println("Test big decimal: " +d1.toString());
-        
-        /* Retrieve Punch List #3 */
-        
-        ArrayList<Punch> p3 = punchDAO.list(b, begin, end);
-        
-        for (Punch p : p3) {
-            p.adjust(s);
-        }
-        
-        /* Calculate Pay Period 09-09-2018 Absenteeism */
-        
-        percentage = DAOUtility.calculateAbsenteeism(p3, s);
-        Absenteeism a3 = new Absenteeism(e, ts, percentage);
-        System.err.println("Test big decimal: " +a3.toString());
+        String x = reportDAO.getBadgeSummary(4);
+        System.err.println(x);
 
     }
 
