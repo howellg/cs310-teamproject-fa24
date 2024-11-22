@@ -78,5 +78,50 @@ public class Version2_WhosInWhosOutReportTest {
         assertEquals(jsonExpected, jsonActual);
 
     }
-    
+    @Test
+    public void testWhosInWhosOutNoEmployeesPresent() {
+
+        JsonArray jsonActual = null;
+        try {
+            LocalDateTime ts = LocalDateTime.of(2018, 9, 5, 7, 0);
+            String jsonActualString = reportDAO.getWhosInWhosOut(ts, 99);
+            jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull(jsonActual);
+        assertTrue(jsonActual.isEmpty());
+    }
+    @Test
+    public void testWhosInWhosOutSpecificTimeFrame() {
+
+        JsonArray jsonActual = null;
+
+        try {
+            LocalDateTime ts = LocalDateTime.of(2018, 9, 5, 12, 0);
+            String jsonActualString = reportDAO.getWhosInWhosOut(ts, 1);
+            jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        assertNotNull(jsonActual);
+        assertFalse(jsonActual.isEmpty());
+    }
+    @Test
+    public void testWhosInWhosOutInvalidTimestamp() {
+
+        JsonArray jsonActual = null;
+        try {
+            LocalDateTime ts = null;
+            String jsonActualString = reportDAO.getWhosInWhosOut(ts, 1);
+            jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+        }
+        catch (Exception e) {
+            assertNull(jsonActual);
+        }
+    }
 }

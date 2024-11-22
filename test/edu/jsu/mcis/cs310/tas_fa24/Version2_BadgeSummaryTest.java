@@ -73,5 +73,48 @@ public class Version2_BadgeSummaryTest {
         assertEquals(jsonExpected, jsonActual);
 
     }
+    @Test
+    public void testBadgeSummaryNoMatchingDepartment() {
     
+        JsonArray jsonActual = null;
+            try {
+                String jsonActualString = reportDAO.getBadgeSummary(99);
+                jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        
+        assertNotNull(jsonActual);
+        assertTrue(jsonActual.isEmpty());
+
+    }
+    
+    @Test
+    public void testBadgeSummaryMaintenanceDepartment() {
+
+        JsonArray jsonActual = null;
+        try {
+            String jsonActualString = reportDAO.getBadgeSummary(5);
+            jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+        }
+        catch (Exception e) {
+           e.printStackTrace();
+        }
+
+        assertNotNull(jsonActual);
+        assertFalse(jsonActual.isEmpty());
+    }
+    @Test
+    public void testBadgeSummaryInvalidDepartmentID() {
+
+        JsonArray jsonActual = null;
+        try {
+            String jsonActualString = reportDAO.getBadgeSummary(Integer.valueOf("InvalidID"));
+            jsonActual = (JsonArray)Jsoner.deserialize(jsonActualString);
+        }
+        catch (Exception e) {
+            assertNull(jsonActual);
+        }
+    }
 }
